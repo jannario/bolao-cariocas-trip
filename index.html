@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🇧🇷 Bolão Carioca's Trip</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
+  :root {
+    --verde: #009c3b;
+    --verde-escuro: #007a2f;
+    --verde-claro: #00c44a;
+    --amarelo: #FFDF00;
+    --amarelo-escuro: #e6c800;
+    --azul: #002776;
+    --roxo: #6b2fa0;
+    --branco: #ffffff;
+    --cinza-bg: #f4f7f4;
+    --cinza-card: #ffffff;
+    --cinza-borda: #d4e8d4;
+    --texto: #1a2e1a;
+    --texto-leve: #4a6b4a;
+    --sombra: 0 2px 12px rgba(0,100,30,0.10);
+    --sombra-hover: 0 6px 24px rgba(0,100,30,0.18);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--cinza-bg); color: var(--texto); min-height: 100vh; -webkit-tap-highlight-color: transparent; }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, var(--azul) 0%, #003a9e 50%, var(--verde-escuro) 100%);
+    color: white;
+    text-align: center;
+    padding: 22px 20px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(255,223,0,0.04) 40px, rgba(255,223,0,0.04) 42px);
+    pointer-events: none;
+  }
+  .header-inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .logo-img { width: 110px; height: 110px; object-fit: contain; border-radius: 50%; box-shadow: 0 0 0 3px rgba(255,223,0,0.5), 0 4px 20px rgba(0,0,0,0.35); }
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    letter-spacing: 3px; color: var(--amarelo);
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+    line-height: 1;
+  }
+  header p { font-size: 0.88rem; color: rgba(255,255,255,0.8); letter-spacing: 0.5px; }
+  .premios-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
+  .premio-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-weight: 700; font-size: 0.78rem;
+    padding: 5px 13px; border-radius: 20px; letter-spacing: 0.2px;
+  }
+  .pb-cerveja { background: var(--amarelo); color: var(--azul); }
+  .pb-coca { background: #cc0000; color: white; }
+
+  /* NAV */
+  nav { background: var(--azul); display: flex; overflow-x: auto; gap: 0; padding: 0 12px; position: sticky; top: 0; z-index: 50; }
+  nav button {
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.8rem;
+    color: rgba(255,255,255,0.65); background: none; border: none;
+    padding: 13px 14px 11px; cursor: pointer; white-space: nowrap;
+    border-bottom: 3px solid transparent; transition: all 0.2s;
+    letter-spacing: 0.3px; text-transform: uppercase;
+  }
+  nav button:hover { color: var(--amarelo); }
+  nav button.active { color: var(--amarelo); border-bottom-color: var(--amarelo); }
+
+  /* MAIN */
+  main { max-width: 860px; margin: 0 auto; padding: 20px 14px 60px; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* CARDS */
+  .card { background: var(--cinza-card); border: 1px solid var(--cinza-borda); border-radius: 14px; padding: 22px 20px; margin-bottom: 16px; box-shadow: var(--sombra); }
+  .card h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 1.5px; color: var(--verde-escuro); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+  /* JOGOS */
+  .jogo-card { border: 2px solid var(--cinza-borda); border-radius: 12px; padding: 16px 16px 14px; margin-bottom: 14px; transition: border-color 0.2s; }
+  .jogo-card:hover { border-color: var(--verde); }
+  .jogo-meta { text-align: center; margin-bottom: 10px; }
+  .jogo-fase { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--texto-leve); }
+  .jogo-data-hora { font-size: 0.88rem; font-weight: 700; color: var(--azul); margin-top: 1px; }
+  .jogo-data-hora a { color: inherit; text-decoration: none; }
+  .jogo-data-hora a:hover { text-decoration: underline; }
+  .jogo-header { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 14px; }
+  .time-nome { font-weight: 700; font-size: 1.05rem; text-align: center; min-width: 80px; }
+  .time-nome.brasil { color: var(--verde-escuro); }
+  .vs-badge { background: var(--azul); color: white; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 1px; padding: 3px 10px; border-radius: 6px; }
+  .placar-inputs { display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .placar-inputs input {
+    width: 60px; height: 52px; font-size: 1.6rem; font-weight: 700;
+    text-align: center; border: 2px solid var(--cinza-borda); border-radius: 10px;
+    color: var(--verde-escuro); transition: border-color 0.2s; -moz-appearance: textfield;
+  }
+  .placar-inputs input::-webkit-inner-spin-button, .placar-inputs input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .placar-inputs input:focus { outline: none; border-color: var(--verde); }
+  .placar-x { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--texto-leve); }
+
+  /* FORM */
+  select, input[type="text"] {
+    border: 2px solid var(--cinza-borda); border-radius: 8px; padding: 9px 12px;
+    font-family: 'Inter', sans-serif; font-size: 0.92rem; color: var(--texto);
+    background: white; transition: border-color 0.2s; width: 100%;
+    min-height: 44px;
+  }
+  select:focus, input[type="text"]:focus { outline: none; border-color: var(--verde); }
+  label { font-size: 0.8rem; font-weight: 600; color: var(--texto-leve); text-transform: uppercase; letter-spacing: 0.4px; display: block; margin-bottom: 5px; }
+  .form-group { margin-bottom: 14px; }
+
+  /* BOTÕES */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 11px 22px; border: none; border-radius: 9px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.15s; letter-spacing: 0.2px; }
+  .btn-verde { background: var(--verde); color: white; }
+  .btn-verde:hover { background: var(--verde-escuro); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,120,40,0.3); }
+  .btn-amarelo { background: var(--amarelo); color: var(--azul); }
+  .btn-amarelo:hover { background: var(--amarelo-escuro); transform: translateY(-1px); }
+  .btn-perigo { background: #e53935; color: white; font-size: 0.75rem; padding: 6px 12px; }
+  .btn-perigo:hover { background: #c62828; }
+  .btn-full { width: 100%; }
+
+  /* TOAST */
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(60px); background: var(--verde-escuro); color: white; padding: 12px 24px; border-radius: 30px; font-weight: 600; font-size: 0.9rem; box-shadow: 0 4px 20px rgba(0,0,0,0.25); transition: transform 0.3s cubic-bezier(.34,1.56,.64,1); z-index: 999; white-space: nowrap; }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* LOADING */
+  .loading { text-align: center; color: var(--texto-leve); padding: 20px; font-size: 0.9rem; }
+  .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid var(--cinza-borda); border-top-color: var(--verde); border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 8px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* RANKING */
+  .ranking-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .ranking-table th { background: var(--azul); color: white; padding: 10px 12px; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .ranking-table th:first-child { border-radius: 8px 0 0 0; }
+  .ranking-table th:last-child { border-radius: 0 8px 0 0; }
+  .ranking-table td { padding: 10px 12px; border-bottom: 1px solid var(--cinza-borda); vertical-align: middle; }
+  .ranking-table tr:hover td { background: #f0f9f0; }
+  .pos-badge { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; font-weight: 700; font-size: 0.85rem; }
+  .pos-1 { background: var(--amarelo); color: var(--azul); }
+  .pos-2 { background: #c0c0c0; color: #333; }
+  .pos-3 { background: #cd7f32; color: white; }
+  .pos-other { background: var(--cinza-borda); color: var(--texto-leve); }
+  .pontos-chip { display: inline-block; background: var(--verde); color: white; border-radius: 6px; padding: 2px 8px; font-weight: 700; font-size: 0.85rem; }
+
+  /* PALPITES TABLE */
+  .palpites-grid { overflow-x: auto; }
+  .palpites-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 480px; }
+  .palpites-table th { background: var(--verde); color: white; padding: 8px 10px; text-align: center; font-size: 0.72rem; text-transform: uppercase; font-weight: 600; letter-spacing: 0.4px; }
+  .palpites-table th:first-child { border-radius: 8px 0 0 0; text-align: left; }
+  .palpites-table th:last-child { border-radius: 0 8px 0 0; }
+  .palpites-table td { padding: 7px 10px; border-bottom: 1px solid var(--cinza-borda); text-align: center; }
+  .palpites-table td:first-child { text-align: left; font-weight: 600; }
+  .palpites-table tr:hover td { background: #f0f9f0; }
+  .resultado-badge { display: inline-block; padding: 2px 8px; border-radius: 5px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.3px; }
+  .rb-exato { background: #d4f4d4; color: #1a6a1a; }
+  .rb-result { background: #fff3d4; color: #7a5500; }
+  .rb-erro { background: #fce8e8; color: #9a2020; }
+
+  /* RESULTADO CARD */
+  .jogo-resultado-card { border-left: 4px solid var(--verde); border-radius: 0 12px 12px 0; background: white; padding: 14px 16px; margin-bottom: 12px; box-shadow: var(--sombra); }
+  .placar-oficial { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--verde-escuro); letter-spacing: 2px; }
+  .placar-pendente { font-size: 1.1rem; color: #ccc; font-style: italic; }
+
+  /* ADMIN */
+  .admin-jogo { background: #f9fff9; border: 1px solid var(--cinza-borda); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+  .admin-jogo h3 { font-weight: 700; font-size: 1rem; margin-bottom: 12px; color: var(--azul); }
+  .placar-admin-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .placar-admin-row input { width: 64px; height: 44px; font-size: 1.3rem; font-weight: 700; text-align: center; border: 2px solid var(--cinza-borda); border-radius: 8px; color: var(--verde-escuro); -moz-appearance: textfield; }
+  .placar-admin-row input::-webkit-inner-spin-button, .placar-admin-row input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .placar-admin-row input:focus { outline: none; border-color: var(--verde); }
+
+  /* PARTICIPANTES */
+  .participante-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .participante-chip { background: #e8f5e9; border: 1px solid #b2dfb2; color: var(--verde-escuro); font-weight: 600; font-size: 0.82rem; padding: 5px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; }
+  .participante-chip .remove-btn { background: none; border: none; cursor: pointer; color: #e53935; font-size: 0.85rem; padding: 0; line-height: 1; font-weight: 700; }
+
+  /* EMPTY */
+  .empty-state { text-align: center; color: var(--texto-leve); padding: 32px 16px; font-size: 0.9rem; }
+  .empty-state .emoji { font-size: 2.4rem; margin-bottom: 10px; }
+
+  /* SYNC STATUS */
+  .sync-bar { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--texto-leve); padding: 6px 0; }
+  .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+  .sync-dot.ok { background: var(--verde); }
+  .sync-dot.saving { background: var(--amarelo); animation: pulse 0.8s infinite; }
+  .sync-dot.error { background: #e53935; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+  @media (max-width: 640px) {
+    header { padding: 14px 14px 12px; }
+    .header-inner { gap: 8px; }
+    .logo-img { width: 78px; height: 78px; }
+    header h1 { font-size: 1.65rem; letter-spacing: 1.8px; max-width: 320px; }
+    .premios-row { width: 100%; gap: 6px; }
+    .premio-badge { width: 100%; justify-content: center; font-size: 0.76rem; padding: 7px 10px; }
+
+    nav {
+      position: fixed; left: 0; right: 0; bottom: 0; top: auto;
+      justify-content: space-around; overflow-x: visible; padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.18);
+    }
+    nav button {
+      flex: 1 1 20%; min-width: 0; min-height: 58px;
+      font-size: 0.62rem; padding: 8px 2px 7px;
+      white-space: normal; line-height: 1.15; border-bottom: none; border-top: 3px solid transparent;
+    }
+    nav button.active { border-bottom-color: transparent; border-top-color: var(--amarelo); }
+
+    main { padding: 14px 10px 92px; }
+    .card { border-radius: 10px; padding: 16px 14px; margin-bottom: 12px; }
+    .card h2 { font-size: 1.25rem; margin-bottom: 12px; }
+    .sync-bar { font-size: 0.7rem; }
+
+    .jogo-card { padding: 14px 12px; border-radius: 10px; }
+    .jogo-header { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; margin-bottom: 12px; }
+    .time-nome { min-width: 0; font-size: 0.95rem; overflow-wrap: anywhere; }
+    .vs-badge { font-size: 0.85rem; padding: 3px 8px; }
+    .placar-inputs { gap: 8px; }
+    .placar-inputs input { width: 64px; height: 54px; font-size: 1.5rem; }
+
+    .ranking-table { font-size: 0.82rem; }
+    .ranking-table th, .ranking-table td { padding: 9px 8px; }
+    .ranking-table th:nth-child(4), .ranking-table td:nth-child(4),
+    .ranking-table th:nth-child(5), .ranking-table td:nth-child(5) { display: none; }
+
+    .palpites-table { min-width: 0; font-size: 0.76rem; }
+    .palpites-table th, .palpites-table td { padding: 8px 6px; }
+    .palpites-table th:nth-child(4), .palpites-table td:nth-child(4) { display: none; }
+
+    .jogo-resultado-card { padding: 12px; }
+    .placar-oficial { font-size: 1.7rem; }
+    .placar-admin-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; }
+    .placar-admin-row input { width: 100%; min-width: 0; height: 48px; }
+    .placar-admin-row .btn { grid-column: 1 / -1; width: 100%; }
+    .participante-chip { font-size: 0.78rem; padding: 6px 10px; }
+    #tab-admin .card:nth-child(2) > div[style*="display:flex"] { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <img class="logo-img" id="logoImg" src="assets/cariocas-trip-logo.png" alt="Carioca's Trip">
+    <h1>🏳️‍🌈 Bolão Carioca's Trip 🇧🇷</h1>
+    <div class="premios-row">
+      <span class="premio-badge pb-cerveja">🍺 Premio Bebum: Uma cerveja</span>
+      <span class="premio-badge pb-coca">🥤 Premio recatada e do lar: Uma coca</span>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('palpites', this)">⚽ Palpite</button>
+  <button onclick="showTab('ranking', this)">🏆 Ranking</button>
+  <button onclick="showTab('jogos', this)">📋 Jogos</button>
+  <button onclick="showTab('todos-palpites', this)">📊 Palpites</button>
+  <button onclick="showTab('admin', this)">🔧 Admin</button>
+</nav>
+
+<main>
+
+  <!-- PALPITES -->
+  <div id="tab-palpites" class="section active">
+    <div class="card">
+      <h2>⚽ Registrar Palpite</h2>
+      <div id="sync-status-palpites" class="sync-bar"><span class="sync-dot" id="dot-p"></span><span id="sync-msg-p">Carregando dados...</span></div>
+      <div class="form-group" style="margin-top:8px;">
+        <label>Participante</label>
+        <select id="select-participante" onchange="renderPalpiteForm()">
+          <option value="">— escolha seu nome —</option>
+        </select>
+      </div>
+    </div>
+    <div id="jogos-palpite-container"></div>
+    <button class="btn btn-verde btn-full" onclick="salvarPalpites()">💾 Salvar Palpites</button>
+  </div>
+
+  <!-- RANKING -->
+  <div id="tab-ranking" class="section">
+    <div class="card">
+      <h2>🏆 Ranking Geral</h2>
+      <div id="ranking-content"><div class="loading"><span class="spinner"></span>Calculando...</div></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:16px;font-size:0.8rem;color:var(--texto-leve);flex-wrap:wrap;">
+        <span><span class="resultado-badge rb-exato">Placar Exato</span> = <strong>5 pts</strong></span>
+        <span><span class="resultado-badge rb-result">Acertou Resultado</span> = <strong>2 pts</strong></span>
+        <span><span class="resultado-badge rb-erro">Errou</span> = <strong>0 pts</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- JOGOS -->
+  <div id="tab-jogos" class="section">
+    <div class="card">
+      <h2>📋 Resultados Oficiais</h2>
+      <div id="jogos-resultados-content"></div>
+    </div>
+  </div>
+
+  <!-- TODOS OS PALPITES -->
+  <div id="tab-todos-palpites" class="section">
+    <div class="card">
+      <h2>📊 Palpites por Jogo</h2>
+      <div class="form-group">
+        <label>Selecionar jogo</label>
+        <select id="select-jogo-palpites" onchange="renderTodosPalpites()">
+          <option value="">— todos os jogos —</option>
+        </select>
+      </div>
+      <div id="todos-palpites-content"></div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="tab-admin" class="section">
+    <div class="card">
+      <h2>🔧 Lançar Resultado Oficial</h2>
+      <div id="admin-jogos-content"></div>
+    </div>
+    <div class="card">
+      <h2>👥 Participantes</h2>
+      <div id="participantes-lista" class="participante-list"></div>
+      <div style="display:flex;gap:8px;margin-top:4px;">
+        <input type="text" id="novo-participante" placeholder="Nome da participante..." onkeydown="if(event.key==='Enter')adicionarParticipante()">
+        <button class="btn btn-verde" onclick="adicionarParticipante()">+ Adicionar</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>💾 Salvamento</h2>
+      <div id="sync-status-admin" class="sync-bar"><span class="sync-dot" id="dot-a"></span><span id="sync-msg-a">Verificando...</span></div>
+      <button class="btn btn-amarelo" onclick="forceSave()" style="margin-top:10px;">💾 Salvar agora</button>
+    </div>
+    <div class="card">
+      <h2>⚠️ Resetar</h2>
+      <button class="btn btn-perigo" onclick="if(confirm('Zerar TUDO? Apaga todos os palpites e resultados!'))resetarTudo()">🗑️ Zerar tudo e recomeçar</button>
+    </div>
+  </div>
+
+</main>
+
+<div id="toast">✔ Salvo!</div>
+
+<script>
+// Logo carregada como asset local para funcionar no Netlify.
+
+// ── JOGOS ──────────────────────────────────────────────────────────
+const JOGOS = [
+  { id: 1, time1: 'Brasil', time2: 'Marrocos', fase: 'Jogo 1 — Grupo', data: '13/06/2026 às 19h00', url: 'https://ge.globo.com/futebol/copa-do-mundo/jogo/13-06-2026/brasil-marrocos.ghtml' },
+  { id: 2, time1: 'Brasil', time2: 'Haiti',    fase: 'Jogo 2 — Grupo', data: '19/06/2026 às 21h30', url: 'https://ge.globo.com/futebol/copa-do-mundo/jogo/19-06-2026/brasil-haiti.ghtml' },
+  { id: 3, time1: 'Escócia', time2: 'Brasil',  fase: 'Jogo 3 — Grupo', data: '24/06/2026 às 19h00', url: 'https://ge.globo.com/futebol/copa-do-mundo/jogo/24-06-2026/escocia-brasil.ghtml' },
+];
+
+const PONTOS_EXATO  = 5;
+const PONTOS_RESULT = 2;
+const PONTOS_ERRO   = 0;
+
+const CLOUD_ENDPOINT = '/.netlify/functions/bolao-state';
+let cloudReady = false;
+
+function sortParticipants(participantes) {
+  return [...new Set(participantes)].sort((a, b) =>
+    a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })
+  );
+}
+
+function defaultState() {
+  return {
+    participantes: sortParticipants([
+      'Ana','Barbara','Bia','Carla','Cassia','Claudia','Fernanda',
+      'Flávia','Gabriela','Jaqueline','Janna','Leila','Leíse',
+      'Maria Cláudia','Márcia','Mônica','Nívia','Patrícia','Raquel',
+      'Rosângela','Rose','Tânia','Valeska'
+    ]),
+    palpites: {},
+    resultados: {},
+  };
+}
+
+// ── PERSISTÊNCIA COMPARTILHADA ─────────────────────────────────────
+let state = defaultState();
+
+function setSyncStatus(dotId, msgId, status, msg) {
+  const dot = document.getElementById(dotId);
+  const msgEl = document.getElementById(msgId);
+  if (!dot || !msgEl) return;
+  dot.className = 'sync-dot ' + status;
+  msgEl.textContent = msg;
+}
+
+async function loadFromStorage() {
+  try {
+    const response = await fetch(CLOUD_ENDPOINT, { cache: 'no-store' });
+    if (!response.ok) throw new Error('Cloud unavailable');
+    const payload = await response.json();
+    if (payload && payload.state) {
+      state = { ...defaultState(), ...payload.state };
+    }
+    cloudReady = true;
+    setSyncStatus('dot-p','sync-msg-p','ok','Dados compartilhados carregados ✔');
+    setSyncStatus('dot-a','sync-msg-a','ok','Salvamento compartilhado ativo ✔');
+  } catch(e) {
+    cloudReady = false;
+    setSyncStatus('dot-p','sync-msg-p','error','Salvamento compartilhado indisponível');
+    setSyncStatus('dot-a','sync-msg-a','error','Publique com Netlify Functions para salvar para o grupo');
+  }
+
+  try {
+    if (!state.participantes || state.participantes.length === 0) {
+      state.participantes = defaultState().participantes;
+    }
+    if (!state.participantes.includes('Gabriela')) {
+      state.participantes.push('Gabriela');
+    }
+    if (!state.participantes.includes('Rosângela')) {
+      state.participantes.push('Rosângela');
+    }
+    state.participantes = sortParticipants(state.participantes);
+  } catch(e) {}
+
+  init();
+}
+
+async function saveState() {
+  const data = JSON.stringify(state);
+
+  try {
+    const response = await fetch(CLOUD_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: data,
+    });
+    if (!response.ok) throw new Error('Cloud save failed');
+    cloudReady = true;
+    const hora = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+    setSyncStatus('dot-a','sync-msg-a','ok','Salvo para o grupo às ' + hora + ' ✔');
+    setSyncStatus('dot-p','sync-msg-p','ok','Palpites compartilhados ✔');
+  } catch(e) {
+    cloudReady = false;
+    setSyncStatus('dot-a','sync-msg-a','error','Não salvou: salvamento compartilhado indisponível');
+    setSyncStatus('dot-p','sync-msg-p','error','Não salvou: tente novamente após republicar o site');
+    throw e;
+  }
+}
+
+async function forceSave() {
+  try {
+    await saveState();
+    showToast('💾 Dados salvos para o grupo!');
+  } catch(e) {
+    showToast('⚠️ Não salvou para o grupo', '#e53935');
+  }
+}
+
+async function resetarTudo() {
+  state = defaultState();
+  try {
+    await saveState();
+    init();
+    showToast('🗑️ Tudo zerado para o grupo!', '#e53935');
+  } catch(e) {
+    showToast('⚠️ Não foi possível zerar.', '#e53935');
+  }
+}
+
+// ── NAVEGAÇÃO ──────────────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (id === 'ranking') renderRanking();
+  if (id === 'jogos') renderJogosResultados();
+  if (id === 'todos-palpites') { populateJogoSelect(); renderTodosPalpites(); }
+  if (id === 'admin') renderAdmin();
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────
+function showToast(msg, cor) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = cor || 'var(--verde-escuro)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function matchLink(jogo) {
+  return `<a href="${jogo.url}" target="_blank" rel="noopener">📅 ${jogo.data}</a>`;
+}
+
+// ── PONTUAÇÃO ──────────────────────────────────────────────────────
+function calcularPontos(palpite, resultado) {
+  const p1 = parseInt(palpite.g1), p2 = parseInt(palpite.g2);
+  const r1 = parseInt(resultado.g1), r2 = parseInt(resultado.g2);
+  if (p1 === r1 && p2 === r2) return { pts: PONTOS_EXATO, tipo: 'Placar Exato' };
+  const venc = (a, b) => a > b ? 1 : a < b ? -1 : 0;
+  if (venc(p1, p2) === venc(r1, r2)) return { pts: PONTOS_RESULT, tipo: 'Acertou Resultado' };
+  return { pts: PONTOS_ERRO, tipo: 'Errou' };
+}
+
+// ── FORM PALPITES ──────────────────────────────────────────────────
+function renderPalpiteForm() {
+  const container = document.getElementById('jogos-palpite-container');
+  const participante = document.getElementById('select-participante').value;
+  if (!participante) {
+    container.innerHTML = '<div class="empty-state"><div class="emoji">👆</div>Escolha seu nome acima para preencher os palpites</div>';
+    return;
+  }
+  let html = '';
+  JOGOS.forEach(jogo => {
+    const key = participante + '_' + jogo.id;
+    const p = state.palpites[key] || { g1: '', g2: '' };
+    const res = state.resultados[jogo.id];
+    const bloqueado = res !== undefined;
+    html += `<div class="jogo-card">
+      <div class="jogo-meta">
+        <div class="jogo-fase">${jogo.fase}</div>
+        <div class="jogo-data-hora">${matchLink(jogo)}</div>
+      </div>
+      <div class="jogo-header">
+        <div class="time-nome ${jogo.time1==='Brasil'?'brasil':''}">🇧🇷 ${jogo.time1}</div>
+        <div class="vs-badge">VS</div>
+        <div class="time-nome ${jogo.time2==='Brasil'?'brasil':''}">${jogo.time2}</div>
+      </div>
+      <div class="placar-inputs">
+        <input type="number" min="0" max="20" id="p_${jogo.id}_g1" value="${p.g1}" placeholder="–" ${bloqueado?'disabled':''}>
+        <span class="placar-x">×</span>
+        <input type="number" min="0" max="20" id="p_${jogo.id}_g2" value="${p.g2}" placeholder="–" ${bloqueado?'disabled':''}>
+      </div>
+      ${bloqueado ? '<div style="text-align:center;margin-top:8px;font-size:0.75rem;color:var(--texto-leve);">✔ Jogo encerrado — resultado já lançado</div>' : ''}
+      ${(res && state.palpites[key]) ? renderMeuResultado(key, jogo) : ''}
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function renderMeuResultado(key, jogo) {
+  const p = state.palpites[key];
+  const res = state.resultados[jogo.id];
+  if (!res || p.g1 === '') return '';
+  const { pts, tipo } = calcularPontos(p, res);
+  const cls = pts === 5 ? 'rb-exato' : pts === 2 ? 'rb-result' : 'rb-erro';
+  const emoji = pts === 5 ? '🎉' : pts === 2 ? '✅' : '❌';
+  return `<div style="text-align:center;margin-top:10px;">${emoji} <span class="resultado-badge ${cls}">${tipo}</span> &nbsp;<strong style="color:var(--verde-escuro)">+${pts} pts</strong></div>`;
+}
+
+async function salvarPalpites() {
+  const participante = document.getElementById('select-participante').value;
+  if (!participante) { showToast('⚠️ Escolha seu nome primeiro!', '#e69500'); return; }
+  let algumSalvo = false;
+  JOGOS.forEach(jogo => {
+    if (state.resultados[jogo.id] !== undefined) return;
+    const g1el = document.getElementById('p_' + jogo.id + '_g1');
+    const g2el = document.getElementById('p_' + jogo.id + '_g2');
+    if (!g1el || !g2el) return;
+    if (g1el.value !== '' && g2el.value !== '') {
+      state.palpites[participante + '_' + jogo.id] = { g1: parseInt(g1el.value), g2: parseInt(g2el.value) };
+      algumSalvo = true;
+    }
+  });
+  if (!algumSalvo) { showToast('⚠️ Preencha pelo menos um placar!', '#e69500'); return; }
+  try {
+    await saveState();
+    renderPalpiteForm();
+    showToast('🎯 Palpite salvo para o grupo, boa sorte ' + participante + '!');
+  } catch(e) {
+    showToast('⚠️ Não salvou. Verifique o Netlify Functions.', '#e53935');
+  }
+}
+
+// ── RANKING ────────────────────────────────────────────────────────
+function renderRanking() {
+  const scores = {};
+  state.participantes.forEach(p => { scores[p] = { pts: 0, exatos: 0, resultados: 0 }; });
+  Object.entries(state.palpites).forEach(([key, palpite]) => {
+    const parts = key.split('_');
+    const jogoId = parseInt(parts[parts.length - 1]);
+    const nome = parts.slice(0, -1).join('_');
+    const res = state.resultados[jogoId];
+    if (!res) return;
+    if (!scores[nome]) scores[nome] = { pts: 0, exatos: 0, resultados: 0 };
+    const { pts, tipo } = calcularPontos(palpite, res);
+    scores[nome].pts += pts;
+    if (tipo === 'Placar Exato') scores[nome].exatos++;
+    else if (tipo === 'Acertou Resultado') scores[nome].resultados++;
+  });
+  const sorted = Object.entries(scores).sort((a, b) => b[1].pts - a[1].pts || b[1].exatos - a[1].exatos);
+  const jogosEncerrados = JOGOS.filter(j => state.resultados[j.id] !== undefined).length;
+  const el = document.getElementById('ranking-content');
+  if (jogosEncerrados === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="emoji">⏳</div>Aguardando o primeiro resultado para calcular o ranking!</div>';
+    return;
+  }
+  let html = `<p style="font-size:0.78rem;color:var(--texto-leve);margin-bottom:12px;">${jogosEncerrados} de ${JOGOS.length} jogo(s) com resultado lançado</p>
+  <div style="overflow-x:auto"><table class="ranking-table"><thead><tr>
+    <th>#</th><th>Participante</th><th>Pts</th><th>Exatos</th><th>Resultados</th>
+  </tr></thead><tbody>`;
+  sorted.forEach(([nome, s], i) => {
+    const pos = i + 1;
+    const posCls = pos===1?'pos-1':pos===2?'pos-2':pos===3?'pos-3':'pos-other';
+    const premio = pos===1?' 🍺🥤':'';
+    html += `<tr><td><span class="pos-badge ${posCls}">${pos}</span></td><td><strong>${nome}</strong>${premio}</td><td><span class="pontos-chip">${s.pts}</span></td><td>🎯 ${s.exatos}</td><td>✅ ${s.resultados}</td></tr>`;
+  });
+  html += '</tbody></table></div>';
+  el.innerHTML = html;
+}
+
+// ── JOGOS RESULTADOS ───────────────────────────────────────────────
+function renderJogosResultados() {
+  const el = document.getElementById('jogos-resultados-content');
+  let html = '';
+  JOGOS.forEach(jogo => {
+    const res = state.resultados[jogo.id];
+    const placarHtml = res
+      ? `<span class="placar-oficial">${res.g1} × ${res.g2}</span>`
+      : `<span class="placar-pendente">Aguardando...</span>`;
+    const vencedor = res ? (res.g1>res.g2?jogo.time1:res.g1<res.g2?jogo.time2:'Empate') : '';
+    html += `<div class="jogo-resultado-card">
+      <div style="font-size:0.72rem;font-weight:700;color:var(--texto-leve);text-transform:uppercase;letter-spacing:0.5px;">${jogo.fase}</div>
+      <div class="jogo-data-hora" style="margin-bottom:8px;">${matchLink(jogo)}</div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <span style="font-weight:700;font-size:1rem;">🇧🇷 ${jogo.time1}</span>
+        ${placarHtml}
+        <span style="font-weight:700;font-size:1rem;">${jogo.time2}</span>
+        ${res?`<span style="font-size:0.75rem;color:var(--texto-leve);">→ <strong>${vencedor}</strong></span>`:''}
+      </div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+// ── TODOS PALPITES ─────────────────────────────────────────────────
+function populateJogoSelect() {
+  const sel = document.getElementById('select-jogo-palpites');
+  sel.innerHTML = '<option value="">— todos os jogos —</option>';
+  JOGOS.forEach(j => { sel.innerHTML += `<option value="${j.id}">${j.fase}: ${j.time1} × ${j.time2}</option>`; });
+}
+
+function renderTodosPalpites() {
+  const filtroJogo = document.getElementById('select-jogo-palpites').value;
+  const jogosFiltro = filtroJogo ? JOGOS.filter(j => j.id == filtroJogo) : JOGOS;
+  const el = document.getElementById('todos-palpites-content');
+  let html = '';
+  jogosFiltro.forEach(jogo => {
+    const res = state.resultados[jogo.id];
+    html += `<div style="margin-bottom:24px;">
+      <div style="font-weight:700;font-size:0.95rem;color:var(--azul);margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--cinza-borda);">
+        ${jogo.fase}: ${jogo.time1} × ${jogo.time2}
+        <span class="jogo-data-hora" style="margin-left:8px;">${matchLink(jogo)}</span>
+        ${res?`<span style="font-size:0.8rem;font-weight:600;color:var(--verde);margin-left:8px;">Resultado: ${res.g1}×${res.g2}</span>`:''}
+      </div>
+      <div class="palpites-grid"><table class="palpites-table">
+        <thead><tr><th>Participante</th><th>Palpite</th><th>Pontos</th><th>Tipo</th></tr></thead><tbody>`;
+    let algum = false;
+    state.participantes.forEach(nome => {
+      const key = nome + '_' + jogo.id;
+      const p = state.palpites[key];
+      if (!p) return;
+      algum = true;
+      const score = res ? calcularPontos(p, res) : null;
+      const ptsHtml = score ? `<span class="pontos-chip">${score.pts}</span>` : `<span style="color:#ccc">—</span>`;
+      const tipoCls = !score?'':score.pts===5?'rb-exato':score.pts===2?'rb-result':'rb-erro';
+      const tipoHtml = score ? `<span class="resultado-badge ${tipoCls}">${score.tipo}</span>` : `<span style="color:#ccc;font-size:0.75rem;">aguardando</span>`;
+      html += `<tr><td>${nome}</td><td><strong>${p.g1} × ${p.g2}</strong></td><td>${ptsHtml}</td><td>${tipoHtml}</td></tr>`;
+    });
+    if (!algum) html += `<tr><td colspan="4" style="text-align:center;color:var(--texto-leve);padding:16px;">Nenhum palpite ainda</td></tr>`;
+    html += '</tbody></table></div></div>';
+  });
+  el.innerHTML = html || '<div class="empty-state">Sem palpites.</div>';
+}
+
+// ── ADMIN ──────────────────────────────────────────────────────────
+function renderAdmin() {
+  const el = document.getElementById('admin-jogos-content');
+  let html = '';
+  JOGOS.forEach(jogo => {
+    const res = state.resultados[jogo.id] || { g1: '', g2: '' };
+    const enc = state.resultados[jogo.id] !== undefined;
+    html += `<div class="admin-jogo">
+      <h3>${jogo.time1} × ${jogo.time2} <span class="jogo-data-hora" style="font-weight:400;font-size:0.8rem;">(${matchLink(jogo)})</span></h3>
+      <div class="placar-admin-row">
+        <input type="number" min="0" max="20" id="adm_${jogo.id}_g1" value="${res.g1}" placeholder="–">
+        <span style="font-family:'Bebas Neue';font-size:1.4rem;color:var(--texto-leve);">×</span>
+        <input type="number" min="0" max="20" id="adm_${jogo.id}_g2" value="${res.g2}" placeholder="–">
+        <button class="btn btn-verde" onclick="salvarResultado(${jogo.id})">${enc?'✏️ Atualizar':'✔ Confirmar'}</button>
+        ${enc?`<button class="btn btn-perigo" onclick="apagarResultado(${jogo.id})">Apagar</button>`:''}
+      </div>
+      ${enc?`<div style="margin-top:8px;font-size:0.75rem;color:var(--verde-escuro);font-weight:600;">✔ Resultado salvo: ${res.g1}×${res.g2}</div>`:''}
+    </div>`;
+  });
+  el.innerHTML = html;
+  renderParticipantes();
+}
+
+async function salvarResultado(jogoId) {
+  const g1 = document.getElementById('adm_' + jogoId + '_g1').value;
+  const g2 = document.getElementById('adm_' + jogoId + '_g2').value;
+  if (g1===''||g2==='') { showToast('⚠️ Preencha os dois placares!', '#e69500'); return; }
+  state.resultados[jogoId] = { g1: parseInt(g1), g2: parseInt(g2) };
+  try {
+    await saveState();
+    renderAdmin();
+    showToast('✅ Resultado salvo para o grupo!');
+  } catch(e) {
+    showToast('⚠️ Resultado não foi salvo.', '#e53935');
+  }
+}
+
+async function apagarResultado(jogoId) {
+  if (!confirm('Apagar resultado deste jogo?')) return;
+  delete state.resultados[jogoId];
+  try {
+    await saveState();
+    renderAdmin();
+    showToast('🗑️ Resultado apagado', '#e69500');
+  } catch(e) {
+    showToast('⚠️ Resultado não foi apagado.', '#e53935');
+  }
+}
+
+// ── PARTICIPANTES ──────────────────────────────────────────────────
+function renderParticipantes() {
+  state.participantes = sortParticipants(state.participantes);
+  const el = document.getElementById('participantes-lista');
+  if (el) el.innerHTML = state.participantes.map((p,i) =>
+    `<div class="participante-chip">${p}<button class="remove-btn" onclick="removerParticipante(${i})">×</button></div>`
+  ).join('');
+  const sel = document.getElementById('select-participante');
+  const atual = sel.value;
+  sel.innerHTML = '<option value="">— escolha seu nome —</option>';
+  state.participantes.forEach(p => { sel.innerHTML += `<option value="${p}" ${p===atual?'selected':''}>${p}</option>`; });
+}
+
+async function adicionarParticipante() {
+  const inp = document.getElementById('novo-participante');
+  const nome = inp.value.trim();
+  if (!nome) return;
+  if (state.participantes.includes(nome)) { showToast('⚠️ ' + nome + ' já está na lista!', '#e69500'); return; }
+  state.participantes = sortParticipants([...state.participantes, nome]);
+  try {
+    await saveState();
+    inp.value = '';
+    renderParticipantes();
+    showToast('✅ ' + nome + ' adicionada para o grupo!');
+  } catch(e) {
+    showToast('⚠️ ' + nome + ' não foi salva.', '#e53935');
+  }
+}
+
+async function removerParticipante(i) {
+  const nome = state.participantes[i];
+  if (!confirm('Remover ' + nome + '?')) return;
+  state.participantes.splice(i, 1);
+  try {
+    await saveState();
+    renderParticipantes();
+    showToast('🗑️ ' + nome + ' removida', '#e69500');
+  } catch(e) {
+    showToast('⚠️ ' + nome + ' não foi removida.', '#e53935');
+  }
+}
+
+// ── INIT ───────────────────────────────────────────────────────────
+function init() {
+  renderParticipantes();
+  renderPalpiteForm();
+  renderJogosResultados();
+}
+
+// Start: load from storage first
+loadFromStorage();
+</script>
+</body>
+</html>
