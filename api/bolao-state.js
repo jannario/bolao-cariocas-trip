@@ -1,4 +1,4 @@
-const { kv } = require('@vercel/kv');
+const { put, head, getDownloadUrl } = require('@vercel/blob');
 
 const HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -9,13 +9,19 @@ const HEADERS = {
 
 module.exports = async (req, res) => {
   Object.entries(HEADERS).forEach(([k, v]) => res.setHeader(k, v));
-
   if (req.method === 'OPTIONS') return res.status(204).end();
 
   try {
     if (req.method === 'GET') {
-      const state = await kv.get('bolao-state');
-      return res.status(200).json({ state: state || null });
+      try {
+        const url = process.env.BLOB_URL;
+        if (!url) return res.status(200).json({ state: null });
+        const r = await fetch(url);
+        const state = await r.json();
+        return res.status(200).json({ state });
+      } catch {
+        return res.status(200).json({ state: null });
+      }
     }
 
     if (req.method === 'POST') {
@@ -23,8 +29,12 @@ module.exports = async (req, res) => {
       if (!body || typeof body !== 'object') {
         return res.status(400).json({ error: 'Estado inválido.' });
       }
-      await kv.set('bolao-state', body);
-      return res.status(200).json({ ok: true });
+      const blob = await put('bolao-state.json', JSON.stringify(body), {
+        access: 'public',
+        allowOverwrite: true,
+      });
+      process.env.BLOB_URL = blob.url;
+      return res.status(200).json({ ok: true, url: blob.url });
     }
 
     return res.status(405).json({ error: 'Método não permitido.' });
