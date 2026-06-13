@@ -1,21 +1,20 @@
-const { getStore } = require("@netlify/blobs");
-
-const HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Content-Type": "application/json; charset=utf-8",
-};
-
 exports.handler = async (event) => {
+  const HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Content-Type": "application/json; charset=utf-8",
+  };
+
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204, headers: HEADERS, body: "" };
   }
 
-  const store = getStore("bolao-cariocas-trip");
-  const key = "state";
-
   try {
+    const { getStore } = await import("@netlify/blobs");
+    const store = getStore("bolao-cariocas-trip");
+    const key = "state";
+
     if (event.httpMethod === "GET") {
       const state = await store.get(key, { type: "json" });
       return {
@@ -34,7 +33,6 @@ exports.handler = async (event) => {
           body: JSON.stringify({ error: "Estado inválido." }),
         };
       }
-
       await store.setJSON(key, body);
       return {
         statusCode: 200,
@@ -52,7 +50,7 @@ exports.handler = async (event) => {
     return {
       statusCode: 500,
       headers: HEADERS,
-      body: JSON.stringify({ error: "Erro ao acessar o bolão." }),
+      body: JSON.stringify({ error: error.message }),
     };
   }
 };
