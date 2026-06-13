@@ -333,6 +333,26 @@
       </div>
     </div>
     <div class="card">
+      <h2>✏️ Editar palpite</h2>
+      <p style="font-size:0.85rem;color:var(--texto-leve);margin-bottom:12px;">Corrija o palpite de qualquer participante em qualquer jogo.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+        <select id="edit-participante" style="flex:1;min-width:140px;padding:8px;border:1px solid var(--cinza-borda);border-radius:8px;">
+          <option value="">— participante —</option>
+        </select>
+        <select id="edit-jogo" style="flex:1;min-width:140px;padding:8px;border:1px solid var(--cinza-borda);border-radius:8px;">
+          <option value="">— jogo —</option>
+        </select>
+      </div>
+      <div id="edit-palpite-form" style="display:none;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <input type="number" min="0" max="20" id="edit-g1" style="width:64px;height:44px;font-size:1.3rem;font-weight:700;text-align:center;border:2px solid var(--cinza-borda);border-radius:8px;color:var(--verde-escuro);" placeholder="–">
+          <span style="font-size:1.4rem;color:var(--texto-leve);">×</span>
+          <input type="number" min="0" max="20" id="edit-g2" style="width:64px;height:44px;font-size:1.3rem;font-weight:700;text-align:center;border:2px solid var(--cinza-borda);border-radius:8px;color:var(--verde-escuro);" placeholder="–">
+          <button class="btn btn-verde" onclick="salvarEdicaoPalpite()">✔ Salvar</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
       <h2>💾 Salvamento</h2>
       <div id="sync-status-admin" class="sync-bar"><span class="sync-dot" id="dot-a"></span><span id="sync-msg-a">Verificando...</span></div>
       <button class="btn btn-amarelo" onclick="forceSave()" style="margin-top:10px;">💾 Salvar agora</button>
@@ -720,6 +740,54 @@ function renderTodosPalpites() {
   el.innerHTML = html || '<div class="empty-state">Sem palpites.</div>';
 }
 
+// ── EDITAR PALPITE ─────────────────────────────────────────────────
+function populateEditSelects() {
+  const selP = document.getElementById('edit-participante');
+  const selJ = document.getElementById('edit-jogo');
+  if (!selP || !selJ) return;
+  selP.innerHTML = '<option value="">— participante —</option>';
+  state.participantes.forEach(p => {
+    selP.innerHTML += `<option value="${p}">${p}</option>`;
+  });
+  selJ.innerHTML = '<option value="">— jogo —</option>';
+  JOGOS.forEach(j => {
+    selJ.innerHTML += `<option value="${j.id}">${j.fase}: ${j.time1} × ${j.time2}</option>`;
+  });
+  selP.onchange = mostrarFormEdicao;
+  selJ.onchange = mostrarFormEdicao;
+}
+
+function mostrarFormEdicao() {
+  const participante = document.getElementById('edit-participante').value;
+  const jogoId = document.getElementById('edit-jogo').value;
+  const form = document.getElementById('edit-palpite-form');
+  if (!participante || !jogoId) { form.style.display = 'none'; return; }
+  const palpite = (state.palpites[participante] || {})[jogoId] || { g1: '', g2: '' };
+  document.getElementById('edit-g1').value = palpite.g1 !== undefined ? palpite.g1 : '';
+  document.getElementById('edit-g2').value = palpite.g2 !== undefined ? palpite.g2 : '';
+  form.style.display = 'block';
+}
+
+async function salvarEdicaoPalpite() {
+  const participante = document.getElementById('edit-participante').value;
+  const jogoId = document.getElementById('edit-jogo').value;
+  const g1 = document.getElementById('edit-g1').value;
+  const g2 = document.getElementById('edit-g2').value;
+  if (!participante || !jogoId) { showToast('⚠️ Escolha participante e jogo!', '#e69500'); return; }
+  if (g1 === '' || g2 === '') { showToast('⚠️ Preencha os dois placares!', '#e69500'); return; }
+  if (!state.palpites[participante]) state.palpites[participante] = {};
+  state.palpites[participante][jogoId] = { g1: parseInt(g1), g2: parseInt(g2) };
+  try {
+    await saveState();
+    showToast(`✅ Palpite de ${participante} atualizado!`);
+    document.getElementById('edit-palpite-form').style.display = 'none';
+    document.getElementById('edit-participante').value = '';
+    document.getElementById('edit-jogo').value = '';
+  } catch(e) {
+    showToast('⚠️ Erro ao salvar.', '#e53935');
+  }
+}
+
 // ── ADMIN ──────────────────────────────────────────────────────────
 function renderAdmin() {
   const el = document.getElementById('admin-jogos-content');
@@ -741,6 +809,7 @@ function renderAdmin() {
   });
   el.innerHTML = html;
   renderParticipantes();
+  populateEditSelects();
 }
 
 async function salvarResultado(jogoId) {
