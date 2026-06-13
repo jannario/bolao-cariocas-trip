@@ -1,4 +1,4 @@
-const { put, list, getDownloadUrl } = require('@vercel/blob');
+const { put, list } = require('@vercel/blob');
 
 const HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -9,18 +9,27 @@ const HEADERS = {
 
 module.exports = async (req, res) => {
   Object.entries(HEADERS).forEach(([k, v]) => res.setHeader(k, v));
-  if (req.method === 'OPTIONS') return res.status(204).end();
 
-  try {
-    if (req.method === 'GET') {
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
+  if (req.method === 'GET') {
+    try {
       const { blobs } = await list({ prefix: 'bolao-state', token: process.env.BLOB_READ_WRITE_TOKEN });
-      if (!blobs.length) return res.status(200).json({ state: null });
+      if (!blobs || blobs.length === 0) {
+        return res.status(200).json({ state: null });
+      }
       const r = await fetch(blobs[0].downloadUrl);
       const state = await r.json();
       return res.status(200).json({ state });
+    } catch (error) {
+      return res.status(200).json({ state: null });
     }
+  }
 
-    if (req.method === 'POST') {
+  if (req.method === 'POST') {
+    try {
       const body = req.body;
       if (!body || typeof body !== 'object') {
         return res.status(400).json({ error: 'Estado inválido.' });
@@ -31,7 +40,10 @@ module.exports = async (req, res) => {
         token: process.env.BLOB_READ_WRITE_TOKEN,
       });
       return res.status(200).json({ ok: true });
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
     }
-
-    return res.status(405).json({ error: 'Método não permitido.' });
   }
+
+  return res.status(405).json({ error: 'Método não permitido.' });
+};
