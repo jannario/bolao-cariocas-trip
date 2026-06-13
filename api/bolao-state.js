@@ -1,4 +1,4 @@
-const { put, head, getDownloadUrl } = require('@vercel/blob');
+const { put, list, getDownloadUrl } = require('@vercel/blob');
 
 const HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -13,15 +13,11 @@ module.exports = async (req, res) => {
 
   try {
     if (req.method === 'GET') {
-      try {
-        const url = process.env.BLOB_URL;
-        if (!url) return res.status(200).json({ state: null });
-        const r = await fetch(url);
-        const state = await r.json();
-        return res.status(200).json({ state });
-      } catch {
-        return res.status(200).json({ state: null });
-      }
+      const { blobs } = await list({ prefix: 'bolao-state', token: process.env.BLOB_READ_WRITE_TOKEN });
+      if (!blobs.length) return res.status(200).json({ state: null });
+      const r = await fetch(blobs[0].downloadUrl);
+      const state = await r.json();
+      return res.status(200).json({ state });
     }
 
     if (req.method === 'POST') {
@@ -29,16 +25,13 @@ module.exports = async (req, res) => {
       if (!body || typeof body !== 'object') {
         return res.status(400).json({ error: 'Estado inválido.' });
       }
-      const blob = await put('bolao-state.json', JSON.stringify(body), {
+      await put('bolao-state.json', JSON.stringify(body), {
         access: 'public',
         allowOverwrite: true,
+        token: process.env.BLOB_READ_WRITE_TOKEN,
       });
-      process.env.BLOB_URL = blob.url;
-      return res.status(200).json({ ok: true, url: blob.url });
+      return res.status(200).json({ ok: true });
     }
 
     return res.status(405).json({ error: 'Método não permitido.' });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
   }
-};
