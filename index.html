@@ -338,6 +338,17 @@
       <button class="btn btn-amarelo" onclick="forceSave()" style="margin-top:10px;">💾 Salvar agora</button>
     </div>
     <div class="card">
+      <h2>📦 Backup dos dados</h2>
+      <p style="font-size:0.85rem;color:var(--texto-leve);margin-bottom:12px;">Baixe um arquivo com todos os palpites. Se algo der errado, restaure pelo mesmo arquivo.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-verde" onclick="baixarBackup()">📥 Baixar backup</button>
+        <label class="btn btn-amarelo" style="cursor:pointer;">
+          📤 Restaurar backup
+          <input type="file" accept=".json" style="display:none;" onchange="restaurarBackup(event)">
+        </label>
+      </div>
+    </div>
+    <div class="card">
       <h2>⚠️ Resetar</h2>
       <button class="btn btn-perigo" onclick="if(confirm('Zerar TUDO? Apaga todos os palpites e resultados!'))resetarTudo()">🗑️ Zerar tudo e recomeçar</button>
     </div>
@@ -456,6 +467,40 @@ async function forceSave() {
   } catch(e) {
     showToast('⚠️ Não salvou para o grupo', '#e53935');
   }
+}
+
+function baixarBackup() {
+  const dados = JSON.stringify(state, null, 2);
+  const blob = new Blob([dados], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const data = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `bolao-backup-${data}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 Backup baixado!');
+}
+
+async function restaurarBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const dados = JSON.parse(e.target.result);
+      if (!dados || typeof dados !== 'object') throw new Error('Arquivo inválido');
+      if (!confirm('Restaurar o backup? Os dados atuais serão substituídos.')) return;
+      state = dados;
+      await saveState();
+      renderAll();
+      showToast('✅ Backup restaurado com sucesso!');
+    } catch(err) {
+      showToast('⚠️ Erro ao restaurar: arquivo inválido.', '#e53935');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
 }
 
 async function resetarTudo() {
