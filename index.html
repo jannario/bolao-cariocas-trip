@@ -762,7 +762,8 @@ function mostrarFormEdicao() {
   const jogoId = document.getElementById('edit-jogo').value;
   const form = document.getElementById('edit-palpite-form');
   if (!participante || !jogoId) { form.style.display = 'none'; return; }
-  const palpite = (state.palpites[participante] || {})[jogoId] || { g1: '', g2: '' };
+  const key = participante + '_' + jogoId;
+  const palpite = state.palpites[key] || { g1: '', g2: '' };
   document.getElementById('edit-g1').value = palpite.g1 !== undefined ? palpite.g1 : '';
   document.getElementById('edit-g2').value = palpite.g2 !== undefined ? palpite.g2 : '';
   form.style.display = 'block';
@@ -775,8 +776,8 @@ async function salvarEdicaoPalpite() {
   const g2 = document.getElementById('edit-g2').value;
   if (!participante || !jogoId) { showToast('⚠️ Escolha participante e jogo!', '#e69500'); return; }
   if (g1 === '' || g2 === '') { showToast('⚠️ Preencha os dois placares!', '#e69500'); return; }
-  if (!state.palpites[participante]) state.palpites[participante] = {};
-  state.palpites[participante][jogoId] = { g1: parseInt(g1), g2: parseInt(g2) };
+  const key = participante + '_' + jogoId;
+  state.palpites[key] = { g1: parseInt(g1), g2: parseInt(g2) };
   try {
     await saveState();
     showToast(`✅ Palpite de ${participante} atualizado!`);
